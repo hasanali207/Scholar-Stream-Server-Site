@@ -43,8 +43,36 @@ async function run() {
     await client.connect();
     const itemCollection = client.db("ScholarShip").collection("AllScholarShip");
     const scholarCollection = client.db("ScholarShip").collection("scholarfromuser");
+    const usersCollection = client.db("ScholarShip").collection("users");
+   
+   
+    app.post("/users",  async (req, res) => {
+      const user = req.body;
+      const query =  {email : user.email}
+      const existingUser = await usersCollection.findOne(query)
+      if(existingUser){
+        return res.send({message: 'user Already Exist', insertedId: null})
+      }
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
 
+    app.get("/users", async (req, res) => {
+      const cursor = usersCollection.find();
+     const result = await cursor.toArray();
+     res.send(result);
+   });  
 
+   
+
+   app.delete('/users/:id', async(req, res) =>{
+    const id = req.params.id
+    const query = {_id: new ObjectId(id)}
+    const result = await usersCollection.deleteOne(query);
+    res.send(result)
+   })
+
+   
  app.get("/items", async (req, res) => {
      const cursor = itemCollection.find();
     const result = await cursor.toArray();
@@ -79,6 +107,9 @@ async function run() {
     const result = await scholarCollection.deleteOne(query);
     res.send(result)
    })
+
+
+
 
     await client.db("admin").command({ ping: 1 });
     console.log(
