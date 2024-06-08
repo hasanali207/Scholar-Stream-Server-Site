@@ -146,6 +146,19 @@ const verifyAdmin = async (req, res, next) =>{
     res.send(result);
   });
 
+  app.delete('/items/:id', async(req, res) =>{
+    const id = req.params.id
+    const query = {_id: new ObjectId(id)}
+    const result = await itemCollection.deleteOne(query);
+    res.send(result)
+   })
+
+  app.post("/items",  async (req, res) => {
+    const newItem = req.body;
+    const result = await itemCollection.insertOne(newItem);
+    res.send(result);
+  });
+
 
     app.get("/singleItem/:id", async (req, res) => {
       const id = req.params.id;
