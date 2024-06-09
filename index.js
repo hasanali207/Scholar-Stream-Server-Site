@@ -113,10 +113,15 @@ const verifyAdmin = async (req, res, next) =>{
       const query = {  email: email}
       const user = await usersCollection.findOne(query)
       let admin = false
-      if(user){
-        admin = user?.role === 'admin'
+      let moderator = false
+      if (user) {
+        if (user.role === 'admin') {
+          admin = true;
+        } else if (user.role === 'moderator') {
+          moderator = true;
+        }
       }
-      res.send({admin})
+      res.send({admin, moderator})
    })
 
    
@@ -132,7 +137,7 @@ const verifyAdmin = async (req, res, next) =>{
     const query = {_id: new ObjectId(id)}
     const updateDoc = {
       $set: {
-        role: `admin`
+        role: `moderator`
       },
     };
     const result = await usersCollection.updateOne(query, updateDoc);
@@ -158,6 +163,45 @@ const verifyAdmin = async (req, res, next) =>{
     const result = await itemCollection.insertOne(newItem);
     res.send(result);
   });
+  
+  app.get("/items/update/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await itemCollection.findOne(query);
+    res.send(result);
+  });
+  
+  app.put("/updateItem/:id", async (req, res) => {
+    const id = req.params.id;
+    const item = req.body;
+    const query = { _id: new ObjectId(id) };
+    const data = {
+      $set: {
+        scholarshipName : item.scholarshipName,
+        university_name: item.university_name,
+        university_image: item.university_image,
+        universityCountry: item.universityCountry,
+        universityCity: item.universityCity,
+        universityWorldRank: item.universityWorldRank,
+        subjectCategory: item.subjectCategory,
+        scholarshipCategory: item.scholarshipCategory,
+        degree: item.degree,
+        tuitionFees: item.tuitionFees,
+        applicationFees: item.applicationFees,
+        serviceCharge: item.serviceCharge,
+        applicationDeadline: item.applicationDeadline,
+        scholarshipPostDate: item.scholarshipPostDate,
+        postedUserEmail: item.postedUserEmail
+      },
+    };
+    try {
+        const result = await itemCollection.updateOne(query, data);
+        res.send(result);
+    } catch (error) {
+        console.error('Error updating item:', error);
+        res.status(500).send({ message: 'Failed to update item' });
+    }
+});
 
 
     app.get("/singleItem/:id", async (req, res) => {
@@ -180,8 +224,20 @@ const verifyAdmin = async (req, res, next) =>{
      const result = await cursor.toArray();
      res.send(result);
    });  
+    app.get("/allscholaritems", async (req, res) => {
+      const cursor = scholarCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+   });  
 
    app.delete('/scholaritems/:id', async(req, res) =>{
+    const id = req.params.id
+    const query = {_id: new ObjectId(id)}
+    const result = await scholarCollection.deleteOne(query);
+    res.send(result)
+   })
+   
+   app.delete('/allscholaritems/:id', async(req, res) =>{
     const id = req.params.id
     const query = {_id: new ObjectId(id)}
     const result = await scholarCollection.deleteOne(query);
