@@ -45,7 +45,7 @@ async function run() {
     const itemCollection = client.db("ScholarShip").collection("AllScholarShip");
     const scholarCollection = client.db("ScholarShip").collection("scholarfromuser");
     const usersCollection = client.db("ScholarShip").collection("users");
-   
+    const reviewCollection = client.db("ScholarShip").collection("Reviews");
     // jwt realted api 
     app.post('/jwt', async(req, res)=>{
       
@@ -213,6 +213,18 @@ const verifyAdmin = async (req, res, next) =>{
 
     app.post("/scholarfromuser",  async (req, res) => {
       const newItem = req.body;
+    //  const query = {
+    //    user_email : newItem.user_email,
+    //    itemId : newItem.itemId
+
+    //  }
+    //  const alreadyApplied = await scholarCollection.findOne(query)
+    //  if(alreadyApplied){
+    //   return res 
+    //   .status(404)
+    //   .send('You Have Already Applied this Scholarship')
+    //  }
+
       const result = await scholarCollection.insertOne(newItem);
       res.send(result);
     });
@@ -264,7 +276,8 @@ const verifyAdmin = async (req, res, next) =>{
         hsc: item.hsc,
         gender: item.gender,
         degree: item.degree,
-        applicantImage: item.applicantImage
+        applicantImage: item.applicantImage,
+        
       },
     };
   
@@ -276,6 +289,23 @@ const verifyAdmin = async (req, res, next) =>{
       res.status(500).send({ message: 'Failed to update item' });
     }
   });
+
+
+  app.patch('/user/status/:id', verifyToken, verifyAdmin, async(req, res) =>{
+    const id = req.params.id
+    const data = req.body
+    const query = {_id: new ObjectId(id)}
+    const options = { upsert: true };
+    const updateDoc = {
+      $set: {
+        status: `processing`,
+        feedback : data.feedback
+      },
+    };
+    const result = await scholarCollection.updateOne(query, updateDoc, options);
+    res.send(result)
+   })
+
 
 
     await client.db("admin").command({ ping: 1 });
