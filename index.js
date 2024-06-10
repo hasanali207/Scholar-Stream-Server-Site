@@ -244,7 +244,38 @@ const verifyAdmin = async (req, res, next) =>{
     res.send(result)
    })
 
-
+   app.get("/scholaritem/update/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await scholarCollection.findOne(query);
+    res.send(result);
+  });
+  
+  app.patch("/scholaritem/updateItem/:id", async (req, res) => {
+    const id = req.params.id;
+    const item = req.body;
+    const query = { _id: new ObjectId(id) };
+    const data = {
+      $set: {
+        phone: item.phone,
+        address: item.address,
+        applicantName: item.applicantName,
+        ssc: item.ssc,
+        hsc: item.hsc,
+        gender: item.gender,
+        degree: item.degree,
+        applicantImage: item.applicantImage
+      },
+    };
+  
+    try {
+      const result = await scholarCollection.updateOne(query, data); // Ensure using correct collection name
+      res.send(result);
+    } catch (error) {
+      console.error('Error updating item:', error);
+      res.status(500).send({ message: 'Failed to update item' });
+    }
+  });
 
 
     await client.db("admin").command({ ping: 1 });
