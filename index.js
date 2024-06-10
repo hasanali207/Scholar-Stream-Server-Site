@@ -213,18 +213,6 @@ const verifyAdmin = async (req, res, next) =>{
 
     app.post("/scholarfromuser",  async (req, res) => {
       const newItem = req.body;
-    //  const query = {
-    //    user_email : newItem.user_email,
-    //    itemId : newItem.itemId
-
-    //  }
-    //  const alreadyApplied = await scholarCollection.findOne(query)
-    //  if(alreadyApplied){
-    //   return res 
-    //   .status(404)
-    //   .send('You Have Already Applied this Scholarship')
-    //  }
-
       const result = await scholarCollection.insertOne(newItem);
       res.send(result);
     });
@@ -264,7 +252,7 @@ const verifyAdmin = async (req, res, next) =>{
   });
   
   app.patch("/scholaritem/updateItem/:id", async (req, res) => {
-    const id = req.params.id;
+    const id = req.params.id; 
     const item = req.body;
     const query = { _id: new ObjectId(id) };
     const data = {
@@ -282,7 +270,7 @@ const verifyAdmin = async (req, res, next) =>{
     };
   
     try {
-      const result = await scholarCollection.updateOne(query, data); // Ensure using correct collection name
+      const result = await scholarCollection.updateOne(query, data); 
       res.send(result);
     } catch (error) {
       console.error('Error updating item:', error);
@@ -305,6 +293,73 @@ const verifyAdmin = async (req, res, next) =>{
     const result = await scholarCollection.updateOne(query, updateDoc, options);
     res.send(result)
    })
+
+
+   app.post("/reviews",  async (req, res) => {
+    const newItem = req.body;
+    const result = await reviewCollection.insertOne(newItem);
+    res.send(result);
+  });
+
+  app.get("/reviews", async (req, res) => {
+    const cursor = reviewCollection.find();
+    const result = await cursor.toArray();
+    res.send(result);
+ });  
+ 
+
+ app.get("/review/user/:email", async (req, res) => {
+  const email = req.params.email;
+  const query = { user_email: email };
+  const result = await reviewCollection.find(query).toArray();
+    res.send(result);
+});
+
+
+
+app.delete('/allreviews/:id', async(req, res) =>{
+  const id = req.params.id
+  const query = {_id: new ObjectId(id)}
+  const result = await reviewCollection.deleteOne(query);
+  res.send(result)
+ })
+ 
+
+ app.get("/review/update/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await reviewCollection.findOne(query);
+    res.send(result);
+  } catch (error) {
+    console.error('Error fetching review:', error);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+});
+
+app.patch('/review/updateItem/:id', async(req, res) => {
+ 
+ 
+    const id = req.params.id;
+    const data = req.body;
+    console.log(data)
+    const query = { _id: new ObjectId(id) };
+    const updateDoc = {
+      $set: {
+        university_name: data.university_name,
+        Scholarship_name: data.Scholarship_name,
+        review_comment: data.review_comment,
+        rating: data.rating,
+        currentDate: data.currentDate,
+        user_image: data.user_image,
+        user_email: data.user_email,
+        user_name: data.user_name,
+      },
+    };
+
+    const result = await reviewCollection.updateOne(query, updateDoc);
+    res.send(result)
+});
 
 
 
