@@ -18,10 +18,10 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
-      "https://book-haven-six.vercel.app",
-      "book-haven-bba9e.firebaseapp.com",
+      "https://scholar-stream-server.vercel.app",
+      "https://scholar-stream.firebaseapp.com",
     ],
-    credentials: true,
+    
   })
 );
 
@@ -34,14 +34,14 @@ const client = new MongoClient(uri, {
 });
 
 
-const cookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-};
+// const cookieOptions = {
+//   httpOnly: true,
+//   secure: process.env.NODE_ENV === "production",
+//   sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+// };
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
     const itemCollection = client.db("ScholarShip").collection("AllScholarShip");
     const scholarCollection = client.db("ScholarShip").collection("scholarfromuser");
     const usersCollection = client.db("ScholarShip").collection("users");
@@ -217,14 +217,14 @@ const verifyAdmin = async (req, res, next) =>{
       res.send(result);
     });
 
-    app.get("/scholaritems", async (req, res) => {
+    app.get("/scholaritems",  async (req, res) => {
       const email = req.query.email
       const query = {user_email : email}
       const cursor = scholarCollection.find(query);
      const result = await cursor.toArray();
      res.send(result);
    });  
-    app.get("/allscholaritems", async (req, res) => {
+    app.get("/allscholaritems", verifyToken, async (req, res) => {
       const cursor = scholarCollection.find();
       const result = await cursor.toArray();
       res.send(result);
@@ -244,7 +244,7 @@ const verifyAdmin = async (req, res, next) =>{
     res.send(result)
    })
 
-   app.get("/scholaritem/update/:id", async (req, res) => {
+   app.get("/scholaritem/update/:id", verifyToken, async (req, res) => {
     const id = req.params.id;
     const query = { _id: new ObjectId(id) };
     const result = await scholarCollection.findOne(query);
@@ -301,14 +301,14 @@ const verifyAdmin = async (req, res, next) =>{
     res.send(result);
   });
 
-  app.get("/reviews", async (req, res) => {
+  app.get("/reviews", verifyToken, async (req, res) => {
     const cursor = reviewCollection.find();
     const result = await cursor.toArray();
     res.send(result);
  });  
  
 
- app.get("/review/user/:email", async (req, res) => {
+ app.get("/review/user/:email", verifyToken, async (req, res) => {
   const email = req.params.email;
   const query = { user_email: email };
   const result = await reviewCollection.find(query).toArray();
@@ -363,7 +363,7 @@ app.patch('/review/updateItem/:id', async(req, res) => {
 
 
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
