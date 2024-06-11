@@ -160,6 +160,8 @@ const verifyAdmin = async (req, res, next) =>{
     const result = await itemCollection.findOne(query);
     res.send(result);
   });
+
+
   
   app.put("/updateItem/:id", async (req, res) => {
     const id = req.params.id;
@@ -200,6 +202,10 @@ const verifyAdmin = async (req, res, next) =>{
       const result = await itemCollection.findOne(query);
       res.send(result);
     });
+    
+
+
+
 
     app.post("/scholarfromuser",  async (req, res) => {
       const newItem = req.body;
