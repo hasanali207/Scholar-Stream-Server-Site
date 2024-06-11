@@ -13,17 +13,7 @@ app.use(express.json());
 
 
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "https://scholar-stream-server.vercel.app",
-      "https://scholar-stream.firebaseapp.com",
-    ],
-    
-  })
-);
+app.use(cors());
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -281,12 +271,24 @@ const verifyAdmin = async (req, res, next) =>{
 
   app.patch('/user/status/:id', verifyToken, verifyAdmin, async(req, res) =>{
     const id = req.params.id
-    const data = req.body
     const query = {_id: new ObjectId(id)}
     const options = { upsert: true };
     const updateDoc = {
       $set: {
         status: `processing`,
+        },
+    };
+    const result = await scholarCollection.updateOne(query, updateDoc, options);
+    res.send(result)
+   })
+
+  app.patch('/feedback/:id', verifyToken, verifyAdmin, async(req, res) =>{
+    const id = req.params.id
+    const data = req.body
+    const query = {_id: new ObjectId(id)}
+    const options = { upsert: true };
+    const updateDoc = {
+      $set: { 
         feedback : data.feedback
       },
     };
