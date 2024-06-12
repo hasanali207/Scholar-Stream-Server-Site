@@ -281,7 +281,7 @@ const verifyAdmin = async (req, res, next) =>{
   });
 
 
-  app.patch('/user/status/:id', verifyToken, verifyAdmin, async(req, res) =>{
+  app.patch('/user/status/:id', verifyToken,  async(req, res) =>{
     const id = req.params.id
     const query = {_id: new ObjectId(id)}
     const options = { upsert: true };
@@ -294,7 +294,7 @@ const verifyAdmin = async (req, res, next) =>{
     res.send(result)
    })
 
-  app.patch('/feedback/:id', verifyToken, verifyAdmin, async(req, res) =>{
+  app.patch('/feedback/:id', verifyToken,  async(req, res) =>{
     const id = req.params.id
     const data = req.body
     const query = {_id: new ObjectId(id)}
@@ -384,7 +384,7 @@ app.post('/payment', async(req,res) =>{
     total_amount: item.totalFee,
     currency: 'BDT',
     tran_id: tran_id, // use unique tran_id for each api call
-    success_url: `http://localhost:5000/ApplyScholar/${item._id}`,
+    success_url: `https://scholar-stream-server.vercel.app/ApplyScholar/${item._id}`,
     fail_url: 'http://localhost:3030/fail',
     cancel_url: 'http://localhost:3030/cancel',
     ipn_url: 'http://localhost:3030/ipn',
@@ -423,7 +423,7 @@ sslcz.init(data).then(apiResponse => {
 app.post('/ApplyScholar/:id', async(req, res)=>{
     const id = req.params.id
     console.log(id)
-    res.redirect(`http://localhost:5173/ApplyScholar/${id}`)
+    res.redirect(`https://scholar-stream.web.app/ApplyScholar/${id}`)
 })
 
 
